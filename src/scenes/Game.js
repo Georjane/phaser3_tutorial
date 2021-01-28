@@ -2,7 +2,8 @@ import Phaser from '../lib/phaser.js'
 
 export default class Game extends Phaser.Scene{
   platforms
-  player 
+  player
+  cursors
   constructor(){
     super('game')
   }
@@ -11,6 +12,7 @@ export default class Game extends Phaser.Scene{
     this.load.image('background', 'assets/bg_layer1.png')
     this.load.image('platform', 'assets/ground_grass.png')
     this.load.image('bunny-stand', 'assets/bunny1_stand.png')
+    this.cursors = this.input.keyboard.createCursorKeys()
   }
 
   create(){
@@ -55,6 +57,14 @@ export default class Game extends Phaser.Scene{
     if (touchingDown) {
       this.player.setVelocityY(-300)
       // this.player.setVelocityX(-50)
+    }
+
+    if (this.cursors.left.isDown && !touchingDown){
+      this.player.setVelocityX(-200)
+    } else if (this.cursors.right.isDown && !touchingDown) {
+      this.player.setVelocityX(200)
+    } else {
+      this.player.setVelocityX(0)
     }
   }
 }
