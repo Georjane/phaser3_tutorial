@@ -1,9 +1,11 @@
 import Phaser from '../lib/phaser.js'
+import Carrot from '../game/Carrot.js'
 
 export default class Game extends Phaser.Scene{
   platforms
   player
   cursors
+  carrots
   constructor(){
     super('game')
   }
@@ -12,6 +14,7 @@ export default class Game extends Phaser.Scene{
     this.load.image('background', 'assets/bg_layer1.png')
     this.load.image('platform', 'assets/ground_grass.png')
     this.load.image('bunny-stand', 'assets/bunny1_stand.png')
+    this.load.image('carrot', 'assets/carrot.png')
     this.cursors = this.input.keyboard.createCursorKeys()
   }
 
@@ -40,6 +43,22 @@ export default class Game extends Phaser.Scene{
 
     this.cameras.main.startFollow(this.player)
     this.cameras.main.setDeadzone(this.scale.width * 1.5)
+  
+    // const carrot = new Carrot(this, 240, 320, 'carrot')
+    // this.add.existing(carrot)
+    this.carrots = this.physics.add.group({
+      classType: Carrot
+    })
+    // this.carrots.get(240, 320, 'carrot')
+    this.physics.add.collider(this.platforms, this.carrots)
+  
+    this.physics.add.overlap(
+      this.player,
+      this.carrots,
+      this.handleCollectCarrot,
+      undefined,
+      this
+    )
   }
 
   update(){
@@ -50,6 +69,8 @@ export default class Game extends Phaser.Scene{
       if (platform.y >= scrollY + 700){
         platform.y = scrollY - Phaser.Math.Between(50, 100)
         platform.body.updateFromGameObject()
+        
+        this.addCarrotAbove(platform)
       }
     })
 
@@ -78,5 +99,20 @@ export default class Game extends Phaser.Scene{
     } else if (sprite.x > gameWidth + halfWidth) {
       sprite.x = -halfWidth
     }
+  }
+
+  addCarrotAbove(sprite){
+    const y = sprite.y - sprite.displayHeight
+    const carrot = this.carrots.get(sprite.x, y, 'carrot')
+    this.add.existing(carrot)
+
+    carrot.body.setSize(carrot.width, carrot.height)
+
+    return carrot
+  }
+
+  handleCollectCarrot(player, carrot){
+    this.carrots.killAndHide(carrot)
+    this.physics.world.disableBody(carrot.body)
   }
 }
