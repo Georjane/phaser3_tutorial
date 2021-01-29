@@ -6,6 +6,7 @@ export default class Game extends Phaser.Scene{
   player
   cursors
   carrots
+  carrotCollected = 0
   constructor(){
     super('game')
   }
@@ -59,6 +60,11 @@ export default class Game extends Phaser.Scene{
       undefined,
       this
     )
+
+    const style = { color: '#000', fontSize: 24 }
+    this.add.text(240, 10, 'Carrots: 0', style)
+        .setScrollFactor(0)
+        .setOrigin(0.5, 0)
   }
 
   update(){
@@ -104,9 +110,13 @@ export default class Game extends Phaser.Scene{
   addCarrotAbove(sprite){
     const y = sprite.y - sprite.displayHeight
     const carrot = this.carrots.get(sprite.x, y, 'carrot')
+    carrot.setActive(true)
+    carrot.setVisible(true)
+    
     this.add.existing(carrot)
 
     carrot.body.setSize(carrot.width, carrot.height)
+    this.physics.world.enable(carrot)
 
     return carrot
   }
@@ -114,5 +124,6 @@ export default class Game extends Phaser.Scene{
   handleCollectCarrot(player, carrot){
     this.carrots.killAndHide(carrot)
     this.physics.world.disableBody(carrot.body)
+    this.carrotCollected++
   }
 }
